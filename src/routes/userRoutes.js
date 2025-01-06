@@ -1,9 +1,9 @@
 const express = require('express');
-const router = express.Router();
-const exampleController = require('../controllers/exampleController');
+const { register, updateProfile } = require('../controllers/userController');
 
-// Definir rotas
-router.get('/', exampleController.getExample);
-router.post('/', exampleController.createExample);
+const router = express.Router();
+
+router.post('/register', register);
+router.put('/profile', updateProfile);
 
 module.exports = router;

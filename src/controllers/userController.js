@@ -1,19 +1,31 @@
-const exampleService = require('../services/exampleService');
+const bcrypt = require('bcryptjs');
+const { createUser, updateUser } = require('../models/userModel');
 
-exports.getExample = async (req, res) => {
-    try {
-        const data = await exampleService.getExample();
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+const register = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const newUser = await createUser(name, email, passwordHash);
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
 };
 
-exports.createExample = async (req, res) => {
-    try {
-        const newData = await exampleService.createExample(req.body);
-        res.status(201).json(newData);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+const updateProfile = async (req, res) => {
+  const { id, name, email, password, profilePicture } = req.body;
+
+  try {
+    const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
+    const updatedUser = await updateUser(id, name, email, passwordHash, profilePicture);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+};
+
+module.exports = {
+  register,
+  updateProfile,
 };

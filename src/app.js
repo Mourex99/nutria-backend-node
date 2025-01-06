@@ -1,11 +1,14 @@
 const express = require('express');
-const app = express();
-const exampleRoutes = require('./routes/exampleRoutes');
+const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 
-// Middleware para parsear JSON
+const app = express();
+
+app.use(cors());
 app.use(express.json());
 
-// Rotas
-app.use('/api/example', exampleRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 module.exports = app;
