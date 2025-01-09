@@ -24,11 +24,11 @@ const createUser = async (name, email, passwordHash) => {
   }
 };
 
-const updateUser = async (id, name, email, passwordHash, profilePicture) => {
+const updateUser = async (id, name, email, passwordHash, profilePicture, resetToken) => {
   try {
     const result = await pool.query(
-      'UPDATE users SET name = $2, email = $3, password = COALESCE($4, password), profile_picture = $5 WHERE id = $1 RETURNING *',
-      [id, name, email, passwordHash, profilePicture]
+      'UPDATE users SET name = $2, email = $3, password = COALESCE($4, password), profile_picture = $5, reset_token = $6 WHERE id = $1 RETURNING *',
+      [id, name, email, passwordHash, profilePicture, resetToken]
     );
     return result.rows[0];
   } catch (error) {
