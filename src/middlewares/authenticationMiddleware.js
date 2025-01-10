@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const admin = require('../config/firebaseConfig');
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   const token = req.header('Authorization').replace('Bearer ', '');
 
   if (!token) {
@@ -9,8 +8,8 @@ const authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken;
     next();
   } catch (error) {
     res.status(400).json({ message: 'Token inválido.' });

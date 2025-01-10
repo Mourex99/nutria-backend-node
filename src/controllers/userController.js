@@ -1,16 +1,21 @@
-const bcrypt = require('bcryptjs');
-const { createUser, updateUser } = require('../models/userModel');
+const admin = require('../config/firebaseConfig');
 
 const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { email, password, name } = req.body;
 
   try {
-    console.log('Iniciando registro de usuário');
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log('Senha criptografada');
-    const newUser = await createUser(name, email, passwordHash);
-    console.log('Usuário criado:', newUser);
-    res.status(201).json(newUser);
+    // Criar usuário com email e senha
+    const userRecord = await admin.auth().createUser({
+      email,
+      password,
+    });
+
+    // Atualizar o nome do usuário
+    await admin.auth().updateUser(userRecord.uid, {
+      displayName: name,
+    });
+
+    res.status(201).json(userRecord);
   } catch (error) {
     console.error('Erro no registro de usuário:', error);
     res.status(500).json({ message: 'Erro no servidor' });
@@ -21,16 +26,19 @@ const updateProfile = async (req, res) => {
   const { id, name, email, password, profilePicture } = req.body;
 
   try {
-    console.log('Iniciando atualização de perfil');
-    if (!id) {
-      console.log('ID do usuário é obrigatório');
-      return res.status(400).json({ message: 'ID do usuário é obrigatório' });
+    const updateData = {
+      displayName: name,
+      email,
+      photoURL: profilePicture,
+    };
+
+    if (password) {
+      updateData.password = password;
     }
 
-    const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
-    const updatedUser = await updateUser(id, name, email, passwordHash, profilePicture);
-    console.log('Perfil atualizado:', updatedUser);
+    const userRecord = await admin.auth().updateUser(id, updateData);
 
+    res.status(200).json(userRecord);
   } catch (error) {
     console.error('Erro na atualização do perfil:', error);
     res.status(500).json({ message: 'Erro no servidor' });
